@@ -8,10 +8,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.data.GitHubService
 import br.com.igorbag.githubsearch.domain.Repository
+import br.com.igorbag.githubsearch.ui.adapter.RepositoryAdapter
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -109,10 +111,12 @@ class MainActivity : AppCompatActivity() {
 
     // Metodo responsavel por realizar a configuracao do adapter
     fun setupAdapter(list: List<Repository>) {
-        /*
-            @TODO 7 - Implementar a configuracao do Adapter , construir o adapter e instancia-lo
-            passando a listagem dos repositorios
-         */
+        val repositoryAdapter = RepositoryAdapter(list)
+
+        repositoriesList.apply {
+            adapter = repositoryAdapter
+            isVisible = true
+        }
     }
 
 
