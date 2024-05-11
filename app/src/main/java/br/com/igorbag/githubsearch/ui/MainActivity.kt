@@ -6,11 +6,14 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.data.GitHubService
 import br.com.igorbag.githubsearch.domain.Repository
+import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -41,8 +44,9 @@ class MainActivity : AppCompatActivity() {
 
     //metodo responsavel por configurar os listeners click da tela
     private fun setupListeners() {
-        btnConfirm.setOnClickListener{
+        btnConfirm.setOnClickListener {
             val inputUserName = userName.text.toString()
+            getAllReposByUserName(inputUserName)
             saveUserLocal(inputUserName)
         }
 
@@ -52,7 +56,7 @@ class MainActivity : AppCompatActivity() {
     // salvar o usuario preenchido no EditText utilizando uma SharedPreferences
     private fun saveUserLocal(value: String) {
         val sharedPreferences = getPreferences(Context.MODE_PRIVATE)
-        with(sharedPreferences.edit()){
+        with(sharedPreferences.edit()) {
             putString("Username", value)
             apply()
         }
@@ -62,8 +66,9 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = getPreferences(Context.MODE_PRIVATE)
         val username = sharedPreferences.getString("Username", "") ?: ""
 
-        if(username.isNotEmpty()) {
+        if (username.isNotEmpty()) {
             userName.setText(username)
+            getAllReposByUserName(username)
         }
     }
 
@@ -78,8 +83,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     //Metodo responsavel por buscar todos os repositorios do usuario fornecido
-    fun getAllReposByUserName() {
+    fun getAllReposByUserName(username: String) {
+
         // TODO 6 - realizar a implementacao do callback do retrofit e chamar o metodo setupAdapter se retornar os dados com sucesso
+        githubApi.getAllRepositoriesByUser(username)
+            .enqueue(object : retrofit2.Callback<List<Repository>> {
+                override fun onResponse(
+                    call: Call<List<Repository>>,
+                    response: Response<List<Repository>>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let {
+                            setupAdapter(it)
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Repository>>, t: Throwable) {
+                    Toast.makeText(applicationContext, "Error while connecting with API.", Toast.LENGTH_LONG)
+                        .show()
+                }
+
+            })
     }
 
     // Metodo responsavel por realizar a configuracao do adapter
