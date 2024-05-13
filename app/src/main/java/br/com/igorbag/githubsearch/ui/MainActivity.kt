@@ -87,7 +87,6 @@ class MainActivity : AppCompatActivity() {
     //Metodo responsavel por buscar todos os repositorios do usuario fornecido
     fun getAllReposByUserName(username: String) {
 
-        // TODO 6 - realizar a implementacao do callback do retrofit e chamar o metodo setupAdapter se retornar os dados com sucesso
         githubApi.getAllRepositoriesByUser(username)
             .enqueue(object : retrofit2.Callback<List<Repository>> {
                 override fun onResponse(
@@ -98,6 +97,8 @@ class MainActivity : AppCompatActivity() {
                         response.body()?.let {
                             setupAdapter(it)
                         }
+                    } else {
+                        setupAdapter(emptyList())
                     }
                 }
 
@@ -116,6 +117,14 @@ class MainActivity : AppCompatActivity() {
         repositoriesList.apply {
             adapter = repositoryAdapter
             isVisible = true
+        }
+
+        repositoryAdapter.cardItemLister = {repository ->
+            openBrowser(repository.htmlUrl)
+        }
+
+        repositoryAdapter.btnShareLister = { repository ->
+            shareRepositoryLink(repository.htmlUrl)
         }
     }
 
